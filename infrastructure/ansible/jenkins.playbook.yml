@@ -1,0 +1,47 @@
+- name: Déployer Jenkins avec Docker
+  hosts: aws
+  become: yes
+  tasks:
+    - name: Créer le réseau Docker pour Jenkins
+      docker_network:
+        name: jenkins
+        state: present
+      register: docker_network_result
+
+    - name: Afficher le résultat de la création du réseau Docker
+      debug:
+        var: docker_network_result
+
+    - name: Créer le répertoire de destination
+      file:
+        path: /tmp/jenkins-configs
+        state: directory
+        mode: '0755'
+
+    - name: Copier le dossier local sur le serveur
+      copy:
+        src: ./configs/
+        dest: /tmp/jenkins-configs/
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Construire l'image Docker pour Jenkins
+      command: docker build -t myjenkins-blueocean:2.452.1 .
+      args:
+        chdir: /tmp/jenkins-configs/jenkins
+      register: docker_build_result
+
+    - name: Afficher le résultat de la construction de l'image Docker
+      debug:
+        var: docker_build_result
+
+    - name: Exécuter Jenkins avec Docker Compose
+      command: docker compose -f ./jenkins.compose.yml up -d
+      args:
+        chdir: /tmp/jenkins-configs/jenkins
+      register: docker_compose_result
+
+    - name: Afficher le résultat de Docker Compose
+      debug:
+        var: docker_compose_result

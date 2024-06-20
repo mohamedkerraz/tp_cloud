@@ -1,0 +1,3 @@
+plugin: cloud.terraform.terraform_provider
+project_path: /mnt/c/Users/mkavi/Documents/tp_cloud/infrastructure/terraform/jenkins
+binary_path: terraform

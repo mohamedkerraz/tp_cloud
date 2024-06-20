@@ -1,0 +1,89 @@
+- name: Installer Docker sur les hôtes cibles
+  hosts: aws
+  become: yes
+  tasks:
+    - name: Mettre à jour apt et installer les pré-requis
+      apt:
+        update_cache: yes
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+      register: apt_update_result
+
+    - name: Afficher le résultat de la mise à jour apt
+      debug:
+        var: apt_update_result
+
+    - name: Ajouter la clé GPG officielle de Docker
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+        keyring: /etc/apt/keyrings/docker.gpg
+
+    - name: Créer le répertoire pour les sources apt
+      file:
+        path: /etc/apt/sources.list.d
+        state: directory
+        mode: '0755'
+
+    - name: Collecter les faits du système
+      ansible.builtin.setup:
+        gather_subset:
+          - 'distribution'
+          - 'distribution_version'
+
+    - name: Définir la variable de codename de la distribution
+      set_fact:
+        distribution_codename: "{{ ansible_facts['distribution_release'] }}"
+
+    - name: Ajouter le dépôt Docker aux sources apt
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ distribution_codename }} stable"
+        state: present
+        filename: docker.list
+
+    - name: Mettre à jour apt pour inclure le dépôt Docker
+      apt:
+        update_cache: yes
+      register: apt_update_docker_result
+
+    - name: Afficher le résultat de la mise à jour apt pour Docker
+      debug:
+        var: apt_update_docker_result
+
+    - name: Installer Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+      register: install_docker_result
+
+    - name: Afficher le résultat de l'installation de Docker
+      debug:
+        var: install_docker_result
+
+    - name: Ajouter l'utilisateur admin au groupe docker
+      user:
+        name: admin
+        groups: docker
+        append: yes
+
+    - name: Informer l'utilisateur de la nécessité de se reconnecter
+      debug:
+        msg: "L'utilisateur admin doit se déconnecter et se reconnecter pour que les modifications de groupe prennent effet."
+
+    - name: Vérifier l'installation de Docker avec sudo
+      command: sudo docker --version
+      register: docker_version_result
+      ignore_errors: yes
+
+    - name: Afficher la version de Docker
+      debug:
+        var: docker_version_result
