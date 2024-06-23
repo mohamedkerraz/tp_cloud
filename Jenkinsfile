@@ -4,10 +4,6 @@ pipeline {
         label 'node'
     }
 
-    environment {
-        // Vous pouvez définir des variables d'environnement ici si nécessaire
-    }
-
     stages {
         stage('Install Dependencies') {
             steps {
