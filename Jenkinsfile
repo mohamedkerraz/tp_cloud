@@ -8,8 +8,7 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                script {
-                    // Installe les dépendances npm
+                dir('backend') {
                     sh 'npm install'
                 }
             }
@@ -18,9 +17,9 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Exécute les tests Jest
-                    sh 'npm test'
-                }
+                    dir('backend') {
+                        sh 'npm test'
+                    }
             }
         }
     }
@@ -28,7 +27,7 @@ pipeline {
     post {
         always {
             // Actions à effectuer après chaque build, peu importe le résultat
-            archiveArtifacts artifacts: 'path/to/artifacts/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: './artifacts', allowEmptyArchive: true
         }
 
         success {
