@@ -1,9 +1,23 @@
 pipeline {
     agent {
-        label 'node'
+        node {
+            label 'node'
+        }
     }
 
     stages {
+        stage('Change to Backend Directory') {
+            steps {
+                // Change le répertoire de travail vers ./backend
+                dir('backend') {
+                    script {
+                        // Exécute un script vide pour changer le répertoire
+                        echo 'Changing working directory to ./backend'
+                    }
+                }
+            }
+        }
+        
         stage('Install Dependencies') {
             steps {
                 dir('backend') {
@@ -15,7 +29,9 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh 'npm test'
+                    dir('backend') {
+                        sh 'npm test'
+                    }
                 }
             }
         }
