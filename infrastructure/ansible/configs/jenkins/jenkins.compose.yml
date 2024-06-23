@@ -1,0 +1,37 @@
+services:
+  jenkins-blueocean:
+    image: myjenkins-blueocean:2.452.2
+    container_name: jenkins-blueocean
+    restart: unless-stopped
+    networks:
+      - jenkins
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+
+  docker-socat:
+      image: alpine/socat
+      container_name: docker-socat
+      restart: unless-stopped
+      networks:
+        - jenkins
+      ports:
+        - 127.0.0.1:2376:2375
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      command: "tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock"
+
+networks:
+  jenkins:
+    external: true
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:

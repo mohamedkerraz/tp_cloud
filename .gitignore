@@ -1,0 +1,6 @@
+.env
+.venv
+.terraform.lock.hcl
+.terraform
+myKey.pem
+myKey.pub

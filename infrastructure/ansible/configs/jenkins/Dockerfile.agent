@@ -1,0 +1,22 @@
+FROM jenkins/agent:latest-jdk17
+
+USER root
+
+ENV NVM_VERSION v0.39.7
+ENV NODE_VERSION v20.14.0
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_PATH $NVM_DIR/$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
+
+RUN mkdir $NVM_DIR
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
+
+RUN echo "source $NVM_DIR/nvm.sh && \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use default" | bash
+
+
+USER jenkins
+
+CMD node -v

@@ -8,6 +8,4 @@ COPY . .
 
 RUN pnpm install
 
-
 CMD pnpm prisma:build && pnpm start
-
