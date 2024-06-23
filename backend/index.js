@@ -1,9 +1,15 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
 
 const app = express();
 const prisma = new PrismaClient();
 const port = process.env.PORT || 3000;
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+};
+app.use(cors(corsOptions));
 
 prisma.$connect()
   .then(() => console.log('Connected to the database'))

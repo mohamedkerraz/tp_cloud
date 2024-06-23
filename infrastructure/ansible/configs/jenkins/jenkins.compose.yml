@@ -1,6 +1,6 @@
 services:
   jenkins-blueocean:
-    image: myjenkins-blueocean:2.452.1
+    image: myjenkins-blueocean:2.452.2
     container_name: jenkins-blueocean
     restart: unless-stopped
     networks:

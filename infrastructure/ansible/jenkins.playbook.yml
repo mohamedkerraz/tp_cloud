@@ -27,7 +27,7 @@
         group: root
 
     - name: Construire l'image Docker pour Jenkins
-      command: docker build -t myjenkins-blueocean:2.452.1 .
+      command: docker build -t myjenkins-blueocean:2.452.2 .
       args:
         chdir: /tmp/jenkins-configs/jenkins
       register: docker_build_result
