@@ -1,8 +1,6 @@
 pipeline {
     agent {
-        node {
-            label 'node'
-            }
+        label 'node'
     }
 
     stages {
@@ -17,9 +15,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    dir('backend') {
-                        sh 'npm test'
-                    }
+                    sh 'npm test'
+                }
             }
         }
     }
