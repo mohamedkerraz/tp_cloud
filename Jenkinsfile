@@ -1,7 +1,8 @@
 pipeline {
     agent {
-        // Utilisez l'agent que vous avez configuré avec Node.js 20
-        label 'node'
+        node {
+            label 'node'
+            }
     }
 
     stages {
