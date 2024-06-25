@@ -1,0 +1,51 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update and install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+- hosts: manager
+  become: yes
+  tasks:
+    - name: Init Docker Swarm
+      shell: docker swarm init --advertise-addr {{ ansible_host }}
+      register: swarm_init
+
+    - name: Get Join Token
+      shell: docker swarm join-token -q worker
+      register: join_token
+
+    - name: Wait for Docker to be ready
+      shell: |
+        until docker info; do
+          sleep 5
+        done
+
+- hosts: workers
+  become: yes
+  tasks:
+    - name: Wait for the manager to be ready
+      wait_for:
+        host: "{{ hostvars['manager']['ansible_host'] }}"
+        port: 2377
+        delay: 10
+        timeout: 120
+        state: started
+
+    - name: Join Docker Swarm
+      shell: docker swarm join --token {{ hostvars['manager']['join_token']['stdout'] }} {{ hostvars['manager']['ansible_host'] }}:2377
+
+- hosts: manager
+  become: yes
+  tasks:
+    - name: Display Docker Swarm Nodes
+      shell: docker node ls
+      register: swarm_nodes
+      changed_when: false
+
+    - name: Print Docker Swarm Nodes
+      debug:
+        msg: "{{ swarm_nodes.stdout_lines }}"
